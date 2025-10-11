@@ -1,1 +1,1 @@
-# Bash_lab
+# devops course labs
