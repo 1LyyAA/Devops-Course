@@ -8,4 +8,6 @@
 
 4. docker attach lab2-docker-app-1
 
-Или run.sh
+Или run.sh  
+
+После нажать enter
