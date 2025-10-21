@@ -1,0 +1,9 @@
+FROM openjdk:21-jdk
+
+WORKDIR /app
+
+COPY app/demo/target/demo-1.0-SNAPSHOT.jar demo-1.0-SNAPSHOT.jar
+
+ENTRYPOINT ["java", "-jar"]
+
+CMD ["demo-1.0-SNAPSHOT.jar"]
