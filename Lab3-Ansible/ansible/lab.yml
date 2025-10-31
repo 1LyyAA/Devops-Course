@@ -5,15 +5,15 @@
   become: yes
   tasks:
   
-  # - name: Install python3-pip   
-  #   apt:
-  #     name: 
-  #       - python3
-  #       - python3-pip
-  #       - python3-venv
-  #     state: present
-  #     update_cache: true
-  #     force_apt_get: yes
+  - name: Install python3-pip   
+    apt:
+      name: 
+        - python3
+        - python3-pip
+        - python3-venv
+      state: present
+      update_cache: true
+      force_apt_get: yes
 
   - name: Create app directory
     file:
@@ -66,31 +66,21 @@
     template:
       src: nginx.conf.j2
       dest: /etc/nginx/sites-available/flask-app
-    # notify: restart nginx
+
 
   - name: Enable nginx site
     file:
       src: /etc/nginx/sites-available/flask-app
       dest: /etc/nginx/sites-enabled/flask-app
       state: link
-    # notify: restart nginx
+
 
   - name: Remove default nginx site
     file:
       path: /etc/nginx/sites-enabled/default
       state: absent
-    # notify: restart nginx
-
-  # - name: Start and enable nginx
-  #   systemd:
-  #     name: nginx
-  #     state: started
-  #     enabled: yes
 
   - name: Start nginx
     shell: nohup nginx -g 'daemon off;' > /var/log/nginx.log 2>&1 &
-  # handlers:
-  # - name: restart nginx
-  #   shell: pkill -f nginx; nohup nginx -g 'daemon off;' > /var/log/nginx.log 2>&1 &
-  #   ignore_errors: yes
+
 

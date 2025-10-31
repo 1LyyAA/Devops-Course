@@ -12,16 +12,9 @@ RUN useradd -m -s /bin/bash admin
 
 RUN echo 'admin:securepassword' | chpasswd
 
-# Отключение root-логина
-#RUN sed -i 's/#PermitRootLogin prohibit-ssh/PermitRootLogin no/' /etc/ssh/sshd_config
-#RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
-
-# Настройка ключей SSH
 RUN mkdir /home/admin/.ssh
-#COPY authorized_keys /home/admin/.ssh/
 RUN chown -R admin:admin /home/admin/.ssh
 RUN chmod 700 /home/admin/.ssh
-#RUN chmod 600 /home/admin/.ssh/authorized_keys
 
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
