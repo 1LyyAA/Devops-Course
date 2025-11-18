@@ -1,0 +1,15 @@
+FROM ubuntu:latest
+
+RUN apt-get update && apt-get install -y openssh-server && apt-get install sudo
+RUN mkdir /var/run/sshd
+
+RUN useradd -m -s /bin/bash admin
+RUN echo 'admin:securepassword' | chpasswd
+
+RUN mkdir /home/admin/.ssh
+
+RUN chown -R admin:admin /home/admin/.ssh
+RUN chmod 700 /home/admin/.ssh
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]

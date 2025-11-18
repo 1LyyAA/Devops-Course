@@ -1,0 +1,20 @@
+FROM ubuntu:latest
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
+
+RUN apt-get update && apt-get install -y openssh-server sudo python3 python3-pip sshpass 
+
+RUN apt-get install -y ansible
+RUN mkdir /var/run/sshd
+
+RUN useradd -m -s /bin/bash admin
+
+RUN echo 'admin:securepassword' | chpasswd
+
+RUN mkdir /home/admin/.ssh
+RUN chown -R admin:admin /home/admin/.ssh
+RUN chmod 700 /home/admin/.ssh
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]

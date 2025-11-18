@@ -1,0 +1,86 @@
+---
+
+- name: Deploy app
+  hosts: app_server
+  become: yes
+  tasks:
+  
+  - name: Install python3-pip   
+    apt:
+      name: 
+        - python3
+        - python3-pip
+        - python3-venv
+      state: present
+      update_cache: true
+      force_apt_get: yes
+
+  - name: Create app directory
+    file:
+      path: /home/admin/app
+      state: directory
+      owner: admin
+      group: admin
+      mode: '0755'
+
+  - name : copy application files
+    copy:
+      src: /home/admin/app/
+      dest: /home/admin/app/
+      owner: admin
+      group: admin
+      mode: '0755'
+
+  - name: Install dependencies
+    pip:
+      requirements: /home/admin/app/requirements.txt
+      virtualenv: /home/admin/app/venv
+      virtualenv_command: python3 -m venv
+
+  - name: Run Flask app
+    shell: /home/admin/app/run.sh
+    args:
+      chdir: /home/admin/app
+
+  - name: Check if app is running
+    uri:
+      url: http://127.0.0.1:5000
+      method: GET
+      status_code: 200
+    retries: 5
+    delay: 2
+
+
+- name: Configure nginx 
+  hosts: nginx_server
+  become: yes
+  tasks:
+  
+  - name: Install nginx 
+    apt:
+      name: nginx
+      state: present
+      update_cache: true
+      force_apt_get: yes
+  - name: Deploy nginx config
+    template:
+      src: nginx.conf.j2
+      dest: /etc/nginx/sites-available/flask-app
+
+
+  - name: Enable nginx site
+    file:
+      src: /etc/nginx/sites-available/flask-app
+      dest: /etc/nginx/sites-enabled/flask-app
+      state: link
+
+
+  - name: Remove default nginx site
+    file:
+      path: /etc/nginx/sites-enabled/default
+      state: absent
+
+  - name: Start nginx
+    shell: nohup nginx -g 'daemon off;' > /var/log/nginx.log 2>&1 &
+
+
