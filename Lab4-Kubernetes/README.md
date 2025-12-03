@@ -8,4 +8,8 @@ minikube start
 
 kubectl apply -f kube
 
-kubectl port-forward svc/urlshortener-service 8080:8080
+
+minikube service urlshortener-service
+
+
+<!-- kubectl port-forward svc/urlshortener-service 8080:8080 -->

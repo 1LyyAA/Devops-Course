@@ -19,11 +19,11 @@ spec:
         app: urlshortener
     spec:
       containers:
-      - image: daylak/urlshortener
+      - image: daylak/urlshortener:latest
         name: urlshortener
         ports:
         - containerPort: 8080
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Never
         env:
           - name: DB_HOST
             value: postgres

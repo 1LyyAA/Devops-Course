@@ -23,8 +23,9 @@ type Request struct {
 }
 
 type Response struct {
-	Url string `json:"url"`
-	Key string `json:"key"`
+	Url      string `json:"url"`
+	Key      string `json:"key"`
+	ShortUrl string `json:"short_url"`
 }
 
 var db *sql.DB
@@ -75,7 +76,13 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
 		}
-		http.Redirect(w, r, url, http.StatusFound)
+
+		// Ensure URL has a scheme
+		if len(url) > 0 && url[0] != 'h' {
+			url = "http://" + url
+		}
+
+		http.Redirect(w, r, url, http.StatusMovedPermanently)
 	}
 }
 
@@ -98,7 +105,13 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		err = db.QueryRow("SELECT key FROM urls WHERE url = $1", request.Url).Scan(&existingKey)
 		if err == nil {
 			// URL already exists, return existing key
-			response := Response{Url: request.Url, Key: existingKey}
+			host := r.Host
+			scheme := "http"
+			if r.TLS != nil {
+				scheme = "https"
+			}
+			shortUrl := fmt.Sprintf("%s://%s/go/%s", scheme, host, existingKey)
+			response := Response{Url: request.Url, Key: existingKey, ShortUrl: shortUrl}
 			w.Header().Set("Content-Type", "application/json")
 			if err := json.NewEncoder(w).Encode(response); err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -124,7 +137,13 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 			// Continue loop to generate new key on collision
 		}
 
-		response := Response{Url: request.Url, Key: key}
+		host := r.Host
+		scheme := "http"
+		if r.TLS != nil {
+			scheme = "https"
+		}
+		shortUrl := fmt.Sprintf("%s://%s/go/%s", scheme, host, key)
+		response := Response{Url: request.Url, Key: key, ShortUrl: shortUrl}
 		w.Header().Set("Content-Type", "application/json")
 
 		if err := json.NewEncoder(w).Encode(response); err != nil {
