@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urlshortener-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: urlshortener
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      name: urlshortener-pod
+      labels:
+        app: urlshortener
+    spec:
+      initContainers:
+      - name: wait-for-postgres
+        image: postgres:15-alpine
+        command:
+          - sh
+          - -c
+          - |
+            until pg_isready -h postgres -U admin -d db; do
+              echo "Waiting for postgres...";
+              sleep 2;
+            done
+      containers:
+      - image: urlshortener:latest
+        name: urlshortener
+        ports:
+        - containerPort: 8080
+        imagePullPolicy: Never
+        env:
+          - name: DB_HOST
+            value: postgres
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_USER
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-config
+                key: postgres_user
+          - name: DB_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-config
+                key: postgres_password
+          - name: DB_NAME
+            value: db
