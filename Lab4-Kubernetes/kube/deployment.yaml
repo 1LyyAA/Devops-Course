@@ -19,7 +19,7 @@ spec:
         app: urlshortener
     spec:
       containers:
-      - image: daylak/urlshortener:latest
+      - image: urlshortener:latest
         name: urlshortener
         ports:
         - containerPort: 8080

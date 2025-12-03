@@ -6,9 +6,14 @@ Kubernetes Lab 4
 minikube delete
 minikube start
 
+# Собрать и загрузить образ в minikube
+docker build -t urlshortener:latest -f dockerfile .
+minikube image load urlshortener:latest
+
+# Применить манифесты
 kubectl apply -f kube
 
-
+# Открыть сервис в браузере
 minikube service urlshortener-service
 
 
