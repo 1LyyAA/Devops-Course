@@ -18,6 +18,17 @@ spec:
       labels:
         app: urlshortener
     spec:
+      initContainers:
+      - name: wait-for-postgres
+        image: postgres:15-alpine
+        command:
+          - sh
+          - -c
+          - |
+            until pg_isready -h postgres -U admin -d db; do
+              echo "Waiting for postgres...";
+              sleep 2;
+            done
       containers:
       - image: urlshortener:latest
         name: urlshortener
